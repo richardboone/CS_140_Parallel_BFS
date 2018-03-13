@@ -1,19 +1,24 @@
 #include <iostream>
 #include <cilk>
 #include "final_project.h"
-
+#include <vector>
 
 int main(int argc, char** argv){
 	char* filename;
+	int numvertices;
+	filename = malloc(100*sizeof(char));
 	
-	
-	if (argc < 2){
-		std::cout << "Usage: ./final_project [a,b] <file_name> << std::endl;
+	if (argc < 3){
+		std::cout << "Usage: ./final_project [a,b]  <numvertices> <file_name>" << std::endl;
 		exit(-1);
 	}
+	memcpy(filename, argv[2]);
+	numvertices = argv[2];
 	
 	
+	vector<int>  *matrix;
 	
+	matrix = new vector<int>[numvertices];
 	
 	
 	
@@ -36,6 +41,7 @@ int main(int argc, char** argv){
 	
 	return 0;
 }
+
 
 print_adjacency_matrix(int* m, int* v){
 	int numvertices = m.size();
