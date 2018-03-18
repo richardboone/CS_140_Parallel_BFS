@@ -1,5 +1,5 @@
 bfs: final_project.cpp 
-	icc  -o bfs final_project.cpp functions.cpp 
+	icc  -o final_project final_project.cpp functions.cpp 
 
 clean:
-	rm bfs
+	rm final_project
