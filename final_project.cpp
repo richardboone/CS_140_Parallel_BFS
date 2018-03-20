@@ -2,6 +2,7 @@
 #include "final_project.h"
 #include <vector>
 #include <string.h>
+#include "bag.h"
 
 using namespace std;
 
@@ -10,27 +11,34 @@ int main(int argc, char** argv){
   int numedges = 0;
   
   if (argc < 3){
-    cout << "Usage: ./final_project [a,b]  [d, u] <numvertices> <file_name>" << endl;
+    cout << "Usage: ./final_project [a,b]  <numvertices> <file_name>" << endl;
     exit(-1);
   }
 
-  numvertices = (unsigned int)atoi(argv[3]);
+  numvertices = (unsigned int)atoi(argv[2]);
+  //cout << "numvertices" << endl;
   vector< vector<int> > *matrix = new vector< vector<int> >(numvertices+1);  
-  input_vector(matrix, argv[4], numedges, argv[2][0]);
-	// cout << "got input" << endl;
+  input_vector(matrix, argv[3], numedges);
+
   graph *G = graph_from_edge_list(matrix, numedges);
-  // print_CSR_graph(G);
-  delete  matrix;
+  print_CSR_graph(G);
+
+  int *level = new int[G->nv];
 
   if (argv[1][0] == 'a') {
     
   }
   else if (argv[1][0] == 'b') {
-    vector_BFS(G);
+    bfs_bag(G, 1, level);
   }
-	
-	
-	delete G;
+  //cout << level->size() << endl;
+
+  
+  for (int i = 0; i < G->nv; i++) {
+    cout << level[i] << endl;
+  } 
+  
+  
   return 0;
 }
 
