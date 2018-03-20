@@ -22,23 +22,23 @@ int main(int argc, char** argv){
 
   graph *G = graph_from_edge_list(matrix, numedges);
   print_CSR_graph(G);
-
+  delete matrix;
   int *level = new int[G->nv];
 
   if (argv[1][0] == 'a') {
-    
+    vector_BFS(G);
   }
   else if (argv[1][0] == 'b') {
     bfs_bag(G, 1, level);
+	  for (int i = 0; i < G->nv; i++) {
+		cout << level[i] << endl;
+	  } 
   }
   //cout << level->size() << endl;
 
+
   
-  for (int i = 0; i < G->nv; i++) {
-    cout << level[i] << endl;
-  } 
-  
-  
+  delete G;
   return 0;
 }
 

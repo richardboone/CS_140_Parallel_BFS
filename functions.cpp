@@ -57,7 +57,7 @@ void print_CSR_graph(graph *G) {
   }  
   cout << endl;
   cout << "first_nbr = ";
-  for (int j = 0; j < G->nv; j++) {
+  for (int j = 0; j < G->nv+1; j++) {
     cout << G->firstnbr[j] << ", ";
   }
   cout << endl;
@@ -132,5 +132,76 @@ void bfs_bag(graph *G, int s, int level[]) {
     cout << level[i] << endl;
   }
   */
+}
+
+
+void vector_BFS(graph* G){
+	vector< int> nextlevel1;
+	vector< int> nextlevel2;
+	int* vertlevels;
+	pthread_mutex_t m;
+	int numedges = G->ne;
+	int numvertices = G->nv;
+	vertlevels = (int*)malloc((numvertices) * sizeof(int));
+	for (int i = 0; i < numvertices; i++){
+		vertlevels[i] = -1;
+	}
+	nextlevel1.push_back(1);
+	vertlevels[1] = 0;
+	int currlevel = 0;
+	while(nextlevel1.size() > 0){
+		currlevel++;
+		// cout << endl;
+		cilk_for(int i = 0; i < nextlevel1.size(); i++){
+			add_values(nextlevel1[i], &nextlevel2, vertlevels, G, m, currlevel);
+		}
+		if (nextlevel2.size()==0){
+			break;
+		}	
+		currlevel++;
+		cilk_for(int i = 0; i < nextlevel2.size(); i++){
+			add_values(nextlevel2[i], &nextlevel1, vertlevels, G, m, currlevel);
+		}
+		nextlevel2.clear();
+	}
+	printvertices(numvertices, vertlevels);
+}
+
+void printvertices(int numvertices, int* vertlevels){
+	cout << "vertex:depth\n";
+	for (int i = 1; i < numvertices; i++){
+		if (vertlevels[i] != -1){
+			cout << i << ":" << vertlevels[i] << endl;
+		}
+	}
+	cout << endl;
+}
+
+int add_values(int vertex, vector<int>* nextlevel, int* vertlevels, graph* G, pthread_mutex_t m, int currlevel){
+	int start = G->firstnbr[vertex];
+	int end;
+	if (vertex == G->nv){
+		end = G->ne;
+	}
+	else{
+		end = G->firstnbr[vertex+1];
+	}
+	int numchanges = 0;
+	if (start == end){
+		return 0;
+	}
+	int len = start - end;
+	// cout << "iterating from " << start << " to " << end << endl;
+	for (int i = start; i < end; i++){
+		if (vertlevels[G->nbr[i]] == -1){
+			// cout << "adding " << G->nbr[i] << endl;
+			// pthread_mutex_lock(&m);
+			vertlevels[G->nbr[i]] = currlevel;
+			nextlevel->push_back(G->nbr[i]);
+			// pthread_mutex_unlock(&m);
+			// numchanges++;
+		}
+	}
+	return 0;
 }
 
