@@ -8,6 +8,7 @@
 #include <pthread.h>
 
 using namespace std;
+pthread_mutex_t mutex_global;
 
 void input_vector(vector< vector<int> > *matrix, char* filename, int &numedges){
   ifstream inFile;
@@ -32,7 +33,7 @@ graph* graph_from_edge_list(vector< vector<int> > *matrix, int numedges) {
   graph *G = new graph;
   G->nv = matrix->size();
   G->ne = numedges;
-  cout << numedges << endl;
+  // cout << numedges << endl;
   G->nbr = new int[G->ne];
   G->firstnbr = new int[G->nv+1];
 
@@ -139,7 +140,7 @@ void vector_BFS(graph* G){
 	vector< int> nextlevel1;
 	vector< int> nextlevel2;
 	int* vertlevels;
-	pthread_mutex_t m;
+	// pthread_mutex_t m;
 	int numedges = G->ne;
 	int numvertices = G->nv;
 	vertlevels = (int*)malloc((numvertices) * sizeof(int));
@@ -148,23 +149,26 @@ void vector_BFS(graph* G){
 	}
 	nextlevel1.push_back(1);
 	vertlevels[1] = 0;
+	// cilk::reducer< cilk::op_list_append<int> > int_reducer1;
+	// cilk::reducer< cilk::op_list_append<int> > int_reducer2;
 	int currlevel = 0;
 	while(nextlevel1.size() > 0){
 		currlevel++;
 		// cout << endl;
 		cilk_for(int i = 0; i < nextlevel1.size(); i++){
-			add_values(nextlevel1[i], &nextlevel2, vertlevels, G, m, currlevel);
+			add_values(nextlevel1[i], &nextlevel2,/* int_reducer1,*/ vertlevels, G, currlevel);
 		}
 		if (nextlevel2.size()==0){
 			break;
 		}	
 		currlevel++;
 		cilk_for(int i = 0; i < nextlevel2.size(); i++){
-			add_values(nextlevel2[i], &nextlevel1, vertlevels, G, m, currlevel);
+			add_values(nextlevel2[i], &nextlevel1, /*int_reducer1,*/ vertlevels, G, currlevel);
 		}
 		nextlevel2.clear();
 	}
 	printvertices(numvertices, vertlevels);
+	free(vertlevels);
 }
 
 void printvertices(int numvertices, int* vertlevels){
@@ -177,28 +181,30 @@ void printvertices(int numvertices, int* vertlevels){
 	cout << endl;
 }
 
-int add_values(int vertex, vector<int>* nextlevel, int* vertlevels, graph* G, pthread_mutex_t m, int currlevel){
+int add_values(int vertex, vector<int>* nextlevel,/* cilk::reducer< cilk::op_list_append<int> > int_reducer,*/ int* vertlevels, graph* G, /*pthread_mutex_t m,*/ int currlevel){
 	int start = G->firstnbr[vertex];
 	int end;
-	if (vertex == G->nv){
-		end = G->ne;
-	}
-	else{
+	// if (vertex == G->nv){
+		// end = G->ne;
+	// }
+	// else{
 		end = G->firstnbr[vertex+1];
-	}
+	// }
 	int numchanges = 0;
 	if (start == end){
 		return 0;
 	}
-	int len = start - end;
+	// int len = start - end;
 	// cout << "iterating from " << start << " to " << end << endl;
 	for (int i = start; i < end; i++){
 		if (vertlevels[G->nbr[i]] == -1){
 			// cout << "adding " << G->nbr[i] << endl;
-			// pthread_mutex_lock(&m);
 			vertlevels[G->nbr[i]] = currlevel;
+			// cout <<"pushing" << i << endl;
+			
+			pthread_mutex_lock(&mutex_global);
 			nextlevel->push_back(G->nbr[i]);
-			// pthread_mutex_unlock(&m);
+			pthread_mutex_unlock(&mutex_global);
 			// numchanges++;
 		}
 	}

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <vector>
 #include "bag.h"
+#include <cilk/reducer_list.h>
 
 using namespace std;
 
@@ -19,5 +20,5 @@ graph * graph_from_edge_list(vector< vector<int> > *matrix, int numedges);
 void print_CSR_graph(graph *G);
 void bfs_bag(graph *G, int s, int *level);
 void vector_BFS(graph* G);
-int add_values(int vertex, vector<int>* nextlevel, int* vertlevels, graph* G, pthread_mutex_t m, int currlevel);
+int add_values(int vertex, vector<int>* nextlevel,/* cilk::reducer< cilk::op_list_append<int> > int_reducer,*/ int* vertlevels, graph* G,/* pthread_mutex_t m, */int currlevel);
 void printvertices(int numvertices, int* vertlevels);

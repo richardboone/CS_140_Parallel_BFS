@@ -21,8 +21,9 @@ int main(int argc, char** argv){
   input_vector(matrix, argv[3], numedges);
 
   graph *G = graph_from_edge_list(matrix, numedges);
-  print_CSR_graph(G);
+  // print_CSR_graph(G);
   delete matrix;
+  // return 0;
   int *level = new int[G->nv];
 
   if (argv[1][0] == 'a') {
