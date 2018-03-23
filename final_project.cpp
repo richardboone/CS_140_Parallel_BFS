@@ -7,17 +7,17 @@
 using namespace std;
 
 int main(int argc, char** argv){
-  unsigned int numvertices;
-  int numedges = 0;
+  unsigned long numvertices;
+  long numedges = 0;
   
   if (argc < 3){
     cout << "Usage: ./final_project [a,b]  <numvertices> <file_name>" << endl;
     exit(-1);
   }
 
-  numvertices = (unsigned int)atoi(argv[2]);
+  numvertices = (unsigned long)atoi(argv[2]);
   //cout << "numvertices" << endl;
-  vector< vector<int> > *matrix = new vector< vector<int> >(numvertices+1);  
+  vector< vector<long> > *matrix = new vector< vector<long> >(numvertices+1);  
   input_vector(matrix, argv[3], numedges);
 
   graph *G = graph_from_edge_list(matrix, numedges);
@@ -31,9 +31,10 @@ int main(int argc, char** argv){
   }
   else if (argv[1][0] == 'b') {
     bfs_bag(G, 1, level);
-	  for (int i = 0; i < G->nv; i++) {
-		cout << level[i] << endl;
-	  } 
+	printvertices(G->nv, level);
+	  // for (int i = 0; i < G->nv; i++) {
+		// cout << level[i] << endl;
+	  // } 
   }
   //cout << level->size() << endl;
 
@@ -59,3 +60,5 @@ void print_adjacency_matrix(int* m, int* v){
   }
   */
 }
+
+
